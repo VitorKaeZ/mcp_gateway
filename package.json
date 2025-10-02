@@ -1,0 +1,19 @@
+{
+  "name": "mcp-hub",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "packages/*/*"
+  ],
+  "scripts": {
+    "start": "npm start --workspaces",
+    "dev": "npm run dev --workspace=mcp-gateway & npm run dev --workspace=weather-mcp-server",
+    "build": "npm run build --workspaces",
+    "postinstall": "npm install --workspaces",
+    "poststart": "npm start --workspaces"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.2"
+  }
+}

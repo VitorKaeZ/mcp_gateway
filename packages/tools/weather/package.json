@@ -1,0 +1,31 @@
+{
+  "name": "weather-mcp-server",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/main.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:daw": "tsc && chmod 755 build/main.js",
+    "build": "tsc",
+    "start": "node build/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "^5.8.3"
+  },
+  "type": "module",
+  "bin": {
+    "weather": "./build/main.js"
+  },
+  "files": [
+    "build"
+  ]
+}
