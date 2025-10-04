@@ -28,6 +28,7 @@ export function createHttpServer() {
     server.register(cors)
 
     server.register(routes)
+    server.register(mcpRoutes, { prefix: '/mcp' }); // <--- REGISTRE AQUI
 
     server.register(userRoutes, {
         prefix: '/users',
@@ -41,7 +42,6 @@ export function createHttpServer() {
 // Registra as rotas de usuário e autenticação já existentes
 
   // Registra nossas novas rotas do Gateway MCP
-  server.register(mcpRoutes, { prefix: '/mcp' }); // <--- REGISTRE AQUI
 
     server.get("/health", (req, res) => {
         res.status(200).send("OK");

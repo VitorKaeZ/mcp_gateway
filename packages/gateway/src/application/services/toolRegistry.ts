@@ -18,10 +18,10 @@ export class ToolRegistryService {
    * @param userId O ID do utilizador autenticado.
    */
   public static async getToolCatalogForUser(userId: string): Promise<any[]> {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      throw new Error("Utilizador não encontrado.");
-    }
+    // const user = await prisma.user.findUnique({ where: { id: userId } });
+    // if (!user) {
+    //   throw new Error("Utilizador não encontrado.");
+    // }
 
    const toolConfigs = toolServerRegistry;
   
@@ -59,8 +59,8 @@ export class ToolRegistryService {
    * @param parameters Os parâmetros para a ferramenta.
    */
   public static async executeTool(userId: string, toolName: string, parameters: any) {
-    const user = await prisma.user.findFirst({ where: { id: userId } });
-    if (!user) throw new Error("Utilizador não encontrado.");
+    // const user = await prisma.user.findFirst({ where: { id: userId } });
+    // if (!user) throw new Error("Utilizador não encontrado.");
 
     // const userPermissions = toolPermissions[user.email] || [];
     // const canExecute = userPermissions.includes('*') || userPermissions.includes(toolName);
