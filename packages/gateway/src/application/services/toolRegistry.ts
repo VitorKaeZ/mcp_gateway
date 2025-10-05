@@ -1,4 +1,4 @@
-// packages/gateway/src/application/services/toolRegistry.ts
+
 
 import { database as prisma } from "../../infrastructure/database/prisma-client";
 import { toolServerRegistry, toolPermissions, ToolConfig } from "../../config/tools.config";
@@ -6,22 +6,13 @@ import axios from 'axios';
 import { LocalToolClientManager } from '../../infrastructure/clients/localToolClientManager'
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
-/**
- * Gere o catálogo e a execução de ferramentas, interagindo com os executores
- * (locais ou HTTP) e verificando as permissões.
- */
+
 export class ToolRegistryService {
 
-  /**
-   * Retorna o catálogo de ferramentas que um utilizador específico tem permissão para ver.
-   * Este método descobre dinamicamente as ferramentas dos seus respetivos servidores (locais ou remotos).
-   * @param userId O ID do utilizador autenticado.
-   */
+  
   public static async getToolCatalogForUser(userId: string): Promise<any[]> {
-    // const user = await prisma.user.findUnique({ where: { id: userId } });
-    // if (!user) {
-    //   throw new Error("Utilizador não encontrado.");
-    // }
+    
+    
 
    const toolConfigs = toolServerRegistry;
   
@@ -32,23 +23,24 @@ export class ToolRegistryService {
         let discoveredTools
         let tools
         if (config.type === 'http') {
-          const response = await axios.get(`${config.location}/mcp/tools`);
+          const response = await axios.get(`${config.location}`);
+          console.log("response", response.data)
           discoveredTools = response.data;
         } else if (config.type === 'local') {
           const client = LocalToolClientManager.getClient(config.location);
         
-          // O método discover() do SDK obtém a definição das ferramentas do processo local
+          
           discoveredTools = await (await client).listTools();
         }
         console.log(`[ToolRegistry] Ferramentas descobertas de '${config.location}':`, discoveredTools);
           allDiscoveredTools.push(...discoveredTools.tools);
       } catch (error) {
         console.error(`[ToolRegistry] Falha ao descobrir ferramentas de '${config.location}':`, error);
-        // Continua para as outras localizações mesmo que uma falhe
+        
       }
     }
 
-    // Filtra final para garantir que apenas as ferramentas permitidas são retornadas
+    
     return allDiscoveredTools;
   }
 
@@ -61,18 +53,18 @@ export class ToolRegistryService {
         let discoveredTools;
         let tools;
         if (config.type === 'http') {
-          // Aqui, idealmente, faríamos uma chamada HTTP para obter as ferramentas
-          // Mas para este exemplo, vamos assumir que temos uma lista estática
-          discoveredTools = []; // Substitua por chamada real
+          
+          
+          discoveredTools = []; 
         } else if (config.type === 'local') {
-          // Aqui, idealmente, usaríamos o cliente local para descobrir ferramentas
-          discoveredTools = []; // Substitua por chamada real
+          
+          discoveredTools = []; 
         } 
         console.log(`[ToolRegistry2] Ferramentas descobertas de '${config.location}':`, discoveredTools);
           allTools.push(...(discoveredTools ?? []));
       } catch (error) {
         console.error(`[ToolRegistry] Falha ao descobrir ferramentas de '${config.location}':`, error);
-        // Continua para as outras localizações mesmo que uma falhe
+        
       }
     }
 
@@ -80,21 +72,15 @@ export class ToolRegistryService {
   }
     
 
-  /**
-   * Executa uma ferramenta após verificar a permissão do utilizador.
-   * @param userId O ID do utilizador que está a fazer a requisição.
-   * @param toolName O nome da ferramenta a ser executada.
-   * @param parameters Os parâmetros para a ferramenta.
-   */
+  
   public static async executeTool(userId: string, toolName: string, parameters: any) {
-    // const user = await prisma.user.findFirst({ where: { id: userId } });
-    // if (!user) throw new Error("Utilizador não encontrado.");
+    
+    
 
-    // const userPermissions = toolPermissions[user.email] || [];
-    // const canExecute = userPermissions.includes('*') || userPermissions.includes(toolName);
-    // if (!canExecute) {
-    //   throw new Error('Acesso negado. Você não tem permissão para usar esta ferramenta.');
-    // }
+    
+    
+    
+    
 
     const toolConfig = toolServerRegistry["Weather"];
     if (!toolConfig) {
@@ -102,7 +88,7 @@ export class ToolRegistryService {
     }
 
     if (toolConfig.type === 'http') {
-      const response = await axios.post(`${toolConfig.location}/mcp/execute`, { toolName, parameters });
+      const response = await axios.post(`${toolConfig.location}/execute`, { toolName, parameters });
       return response.data.result;
     }
 

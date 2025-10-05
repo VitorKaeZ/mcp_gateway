@@ -6,7 +6,7 @@ import { PasswordResetController } from '../../interfaces/controllers/PasswordRe
 import { RequestPasswordResetController } from '../../interfaces/controllers/RequestPasswordResetController';
 import { AuthenticateUserWithGoogleController } from '../../interfaces/controllers/authenticate-user-with-google.controller';
 import { HandlePostController } from '../../interfaces/controllers/mcp/HandlePostController';
-// Add import for HandlePost if it exists
+
 
 export const adaptRoute = (controller: RegisterUserController | LoginUserController | PasswordResetController | RequestPasswordResetController | AuthenticateUserWithGoogleController | HandlePostController ) => {
   return async (req: FastifyRequest, reply: FastifyReply) => {

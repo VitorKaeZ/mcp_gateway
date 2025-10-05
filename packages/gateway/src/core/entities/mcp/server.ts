@@ -5,7 +5,7 @@ import z from "zod";
 import { zodToRaw } from "../../../shared/zod";
 
 export class McpServerManager extends McpServer {
-    // private toolService: ToolRegistryService;
+    
     constructor() {
         super({
             name: 'mcp-gateway',
@@ -15,7 +15,7 @@ export class McpServerManager extends McpServer {
     }   
     
     private async registerAllTools() {
-    //    if (this.toolsRegistered) return;
+    
 
         console.log("[MCP Service] A registar ferramentas no servidor...");
         
@@ -45,7 +45,7 @@ export class McpServerManager extends McpServer {
             });
         }
         
-        // this.toolsRegistered = true;
+        
         console.log("[MCP Service] Ferramentas registadas com sucesso.");
     }
 

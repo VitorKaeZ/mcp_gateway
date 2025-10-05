@@ -12,7 +12,7 @@ export interface HttpRequest {
   headers?: any;
   params?: any;
   query?: any;
-  // Adicione estas duas propriedades:
+  
   raw?: FastifyRequest['raw']; 
   reply?: FastifyReply;
 }

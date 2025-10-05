@@ -50,7 +50,7 @@ export class WeatherToolsController {
   private registerGetForecastToolHandler(): void {
     this.server.registerTool(
       "get-forecast",
-      // "Get weather forecast for a location",
+      
       {
         title: "Get Forecast",
         description: "Get weather forecast for a location",
