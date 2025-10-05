@@ -52,6 +52,34 @@ export class ToolRegistryService {
     return allDiscoveredTools;
   }
 
+  getAllToolsForCatalog(): any[] {
+    const toolConfigs = toolServerRegistry;
+    const allTools: any[] = [];
+
+    for (const [toolName, config] of Object.entries(toolConfigs)) {
+      try {
+        let discoveredTools;
+        let tools;
+        if (config.type === 'http') {
+          // Aqui, idealmente, faríamos uma chamada HTTP para obter as ferramentas
+          // Mas para este exemplo, vamos assumir que temos uma lista estática
+          discoveredTools = []; // Substitua por chamada real
+        } else if (config.type === 'local') {
+          // Aqui, idealmente, usaríamos o cliente local para descobrir ferramentas
+          discoveredTools = []; // Substitua por chamada real
+        } 
+        console.log(`[ToolRegistry2] Ferramentas descobertas de '${config.location}':`, discoveredTools);
+          allTools.push(...(discoveredTools ?? []));
+      } catch (error) {
+        console.error(`[ToolRegistry] Falha ao descobrir ferramentas de '${config.location}':`, error);
+        // Continua para as outras localizações mesmo que uma falhe
+      }
+    }
+
+    return allTools;
+  }
+    
+
   /**
    * Executa uma ferramenta após verificar a permissão do utilizador.
    * @param userId O ID do utilizador que está a fazer a requisição.
@@ -94,4 +122,6 @@ export class ToolRegistryService {
 
     throw new Error('Tipo de ferramenta desconhecido na configuração.');
   }
+
+
 }
