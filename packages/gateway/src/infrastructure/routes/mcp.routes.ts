@@ -89,6 +89,12 @@ import { LocalToolClientManager } from "../clients/localToolClientManager";
 import { ToolRegistryService } from "../../application/services/toolRegistry.js";
 import { z } from "zod/v3";
 import { zodToRaw } from "../../shared/zod";
+import { HandlePost } from "../factories/mcp/handlePost";
+import { adaptRoute } from "../adapters/fastify.route.adapter";
+
+import { tr } from "zod/v4/locales";
+import { mcpSessionManager } from "../mcp/mcpInstances";
+import { HandlePostController } from "../../interfaces/controllers/mcp/HandlePostController";
 // Mapa para armazenar um transporte ativo para cada sessão de cliente.
 const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
 
@@ -103,111 +109,117 @@ export async function mcpRoutes(server: FastifyInstance) {
     
 
     // Registra o mesmo manipulador para todas as rotas e métodos do endpoint /mcp.
-    server.post("/", async (req: FastifyRequest, res: FastifyReply) => {
-      const sessionId = req.headers['mcp-session-id'] as string | undefined;
-    let transport: StreamableHTTPServerTransport;
+//     server.post("/", async (req: FastifyRequest, res: FastifyReply) => {
+//       const sessionId = req.headers['mcp-session-id'] as string | undefined;
+//     let transport: StreamableHTTPServerTransport;
 
-    if (sessionId && transports[sessionId]) {
-        // Reuse existing transport
-        transport = transports[sessionId];
-    } else if (!sessionId && isInitializeRequest(req.body)) {
-        // New initialization request
-        transport = new StreamableHTTPServerTransport({
-            sessionIdGenerator: () => randomUUID(),
-            onsessioninitialized: sessionId => {
-                // Store the transport by session ID
-                transports[sessionId] = transport;
-            }
-            // DNS rebinding protection is disabled by default for backwards compatibility. If you are running this server
-            // locally, make sure to set:
-            // enableDnsRebindingProtection: true,
-            // allowedHosts: ['127.0.0.1'],
-        });
+//     if (sessionId && transports[sessionId]) {
+//         // Reuse existing transport
+//         transport = transports[sessionId];
+//     } else if (!sessionId && isInitializeRequest(req.body)) {
+//         // New initialization request
+//         transport = new StreamableHTTPServerTransport({
+//             sessionIdGenerator: () => randomUUID(),
+//             onsessioninitialized: sessionId => {
+//                 // Store the transport by session ID
+//                 transports[sessionId] = transport;
+//             }
+//             // DNS rebinding protection is disabled by default for backwards compatibility. If you are running this server
+//             // locally, make sure to set:
+//             // enableDnsRebindingProtection: true,
+//             // allowedHosts: ['127.0.0.1'],
+//         });
 
-        // Clean up transport when closed
-        transport.onclose = () => {
-            if (transport.sessionId) {
-                delete transports[transport.sessionId];
-            }
-        };
-        const server = new McpServer({
-            name: 'mcp-gateway',
-            version: '1.0.0'
-        });
+//         // Clean up transport when closed
+//         transport.onclose = () => {
+//             if (transport.sessionId) {
+//                 delete transports[transport.sessionId];
+//             }
+//         };
+//         const server = new McpServer({
+//             name: 'mcp-gateway',
+//             version: '1.0.0'
+//         });
 
-        // ... set up server resources, tools, and prompts ...
+//         // ... set up server resources, tools, and prompts ...
 
-          // --- 2. REGISTRE AS FERRAMENTAS AQUI ---
-        console.log("[MCP] Registrando ferramentas no servidor...");
+//           // --- 2. REGISTRE AS FERRAMENTAS AQUI ---
+//         console.log("[MCP] Registrando ferramentas no servidor...");
         
-        // Supondo que você queira registrar todas as ferramentas para qualquer usuário por enquanto
-        // NOTA: Você precisará adaptar 'getToolCatalogForUser' para retornar o formato que o SDK espera.
-        const allToolsForCatalog = await ToolRegistryService.getToolCatalogForUser("weahter"); // Use um ID genérico ou adapte
+//         // Supondo que você queira registrar todas as ferramentas para qualquer usuário por enquanto
+//         // NOTA: Você precisará adaptar 'getToolCatalogForUser' para retornar o formato que o SDK espera.
+//         const allToolsForCatalog = await ToolRegistryService.getToolCatalogForUser("weahter"); // Use um ID genérico ou adapte
         
-        for (const tool of allToolsForCatalog) {
-            console.log(`[MCP] Adicionando ferramenta: ${tool.title}`, tool.inputSchema.properties,z.object(tool.inputSchema.properties).pick({type: true}));
+//         for (const tool of allToolsForCatalog) {
+//             console.log(`[MCP] Adicionando ferramenta: ${tool.title}`, tool.inputSchema.properties,z.object(tool.inputSchema.properties).pick({type: true}));
             
-        const shape = Object.entries(tool.inputSchema.properties).reduce((acc, [key, prop]) => {
+//         const inputShape = Object.entries(tool.inputSchema.properties).reduce((acc, [key, prop]) => {
         
-              // 4. Atribui o validador final, já configurado, ao nosso objeto 'shape'
-        acc[key] = zodToRaw(prop);
+//               // 4. Atribui o validador final, já configurado, ao nosso objeto 'shape'
+//         acc[key] = zodToRaw(prop);
 
-        return acc;
-      }, {});
+//         return acc;
+//       }, {});
 
-            console.log("Propriedades da ferramenta:", shape);
-            // Registra cada ferramenta no servidor MCP
-            server.registerTool(tool.name, {
-                title: tool.title,
-                description: tool.description,
-                inputSchema: shape,
-                annotations: tool.annotations,
-                outputSchema: tool.outputSchema 
-            },
-            // O handler da ferramenta (a função que será executada)
-            async (params: any) => {
-                try {
-                            // Usamos um ID de utilizador "falso", mas válido, para a execução
-                            console.log(`[MCP Routes] Executando a ferramenta ${tool.name} com parâmetros:`, params);
-                            const result = await ToolRegistryService.executeTool('_system_', tool.name, params);
-                            return result;
-                        } catch (e) {
-                            console.error(`[MCP Routes] Erro ao executar a ferramenta ${tool.name}:`, e);
-                            // Retorna um erro formatado para o cliente
-                            return { error: e instanceof Error ? e.message : 'Erro desconhecido.' };
-                        }
-            });
-        }
+//             console.log("Propriedades da ferramenta:", inputShape);
+//             // Registra cada ferramenta no servidor MCP
+//             server.registerTool(tool.name, {
+//                 title: tool.title,
+//                 description: tool.description,
+//                 inputSchema: inputShape,
+//                 annotations: tool.annotations,
+//                 outputSchema: tool.outputSchema 
+//             },
+//             // O handler da ferramenta (a função que será executada)
+//             async (params: any) => {
+//                 try {
+//                             // Usamos um ID de utilizador "falso", mas válido, para a execução
+//                             console.log(`[MCP Routes] Executando a ferramenta ${tool.name} com parâmetros:`, params);
+//                             const result = await ToolRegistryService.executeTool('_system_', tool.name, params);
+//                             return result;
+//                         } catch (e) {
+//                             console.error(`[MCP Routes] Erro ao executar a ferramenta ${tool.name}:`, e);
+//                             // Retorna um erro formatado para o cliente
+//                             return { error: e instanceof Error ? e.message : 'Erro desconhecido.' };
+//                         }
+//             });
+//         }
         
-        console.log("[MCP] Ferramentas registradas.");
-        // Connect to the MCP server
-        await server.connect(transport);
-    } else {
-        // Invalid request
-        res.status(400).send({
-            jsonrpc: '2.0',
-            error: {
-                code: -32000,
-                message: 'Bad Request: No valid session ID provided'
-            },
-            id: null
-        });
-        return;
-    }
+//         console.log("[MCP] Ferramentas registradas.");
+//         // Connect to the MCP server
+//         await server.connect(transport);
+//     } else {
+//         // Invalid request
+//         res.status(400).send({
+//             jsonrpc: '2.0',
+//             error: {
+//                 code: -32000,
+//                 message: 'Bad Request: No valid session ID provided'
+//             },
+//             id: null
+//         });
+//         return;
+//     }
 
-    // Handle the request
-    await transport.handleRequest(req.raw, res.raw, req.body);
-});;
+//     // Handle the request
+//     await transport.handleRequest(req.raw, res.raw, req.body);
+// });;
+
+server.post("/", async (request: FastifyRequest, reply: FastifyReply) => {
+        const controller = HandlePost();
+        await controller.handle(request, reply);
+});
 
 const handleSessionRequest = async (req: FastifyRequest, res: FastifyReply) => {
     const sessionId = req.headers['mcp-session-id'] as string | undefined;
-    if (!sessionId || !transports[sessionId]) {
+    const transport = mcpSessionManager.getTransport(sessionId)
+
+    if (!sessionId || !transport) {
         res.status(400).send('Invalid or missing session ID');
         return;
     }
 
     console.log(`[MCP] Manipulando requisição para a sessão MCP: ${sessionId}`);
-    const transport = transports[sessionId];
     await transport.handleRequest(req.raw, res.raw);
 };
 

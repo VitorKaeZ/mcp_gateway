@@ -1,9 +1,18 @@
+import { FastifyReply, FastifyRequest } from "fastify";
+
 export interface HttpResponse {
     statusCode: number
-    body: any
+    body: any,
+    headers?: any
+    raw?: any
   }
   
-  export interface HttpRequest {
-    query?: any,
-    body?: any
-  }
+export interface HttpRequest {
+  body?: any;
+  headers?: any;
+  params?: any;
+  query?: any;
+  // Adicione estas duas propriedades:
+  raw?: FastifyRequest['raw']; 
+  reply?: FastifyReply;
+}
